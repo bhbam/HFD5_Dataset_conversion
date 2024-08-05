@@ -28,15 +28,6 @@ mean = np.array(mean_)
 std = np.array(std_)
 size = np.array(size_)
 
-# print("mean  :", mean)
-# print("std  :", std)
-# print("size  :", size)
-# nan_mean = np.isnan(mean)
-# print("nan_mean:  ",np.any(nan_mean))
-# nan_std = np.isnan(std)
-# print("nan_std:  ",np.any(nan_std))
-# nan_size = np.isnan(size)
-# print("nan_size:  ",np.any(nan_size))
 
 after_outlier_mean, after_outlier_std = combined_mean_std(size, mean, std)
 nan_replace = - after_outlier_mean/after_outlier_std
@@ -58,15 +49,16 @@ def repalce_NAN(file_, nan_replace_array):
     num_images = data["all_jet"].shape[0]
     # num_images = 5000  # Adjusted number of images for processing
     batch_size = 4000
+    chunk_size = 32
 
     print(f"Processing file ---> {file}\n")
     tag = 'NAN_removed'
-    outdir = '/pscratch/sd/b/bbbam/normalized_nan_replaced_h5'
+    outdir = '/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4_m1p2To17p2_dataset_2_unbaised_v2_original_combined_NAN_replaced'
     if not os.path.exists(outdir):
         # Create the directory if it doesn't exist
         os.makedirs(outdir)
     out_prefix = (file.split('/')[-1]).split('.')[:-1][0]
-    outfile = f'{out_prefix}_{tag}_train.h5'
+    outfile = f'chunk_size_{chunk_size}_{tag}_{out_prefix}.h5'
 
     with h5py.File(f'{outdir}/{outfile}', 'w') as proper_data:
         dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'm0']
@@ -76,7 +68,7 @@ def repalce_NAN(file_, nan_replace_array):
                 (num_images, 13, 125, 125) if 'jet' in name else (num_images, 1),
                 dtype='float32',
                 compression='lzf',
-                chunks=(batch_size, 13, 125, 125) if 'jet' in name else (batch_size, 1),
+                chunks=(chunk_size, 13, 125, 125) if 'jet' in name else (chunk_size, 1),
             ) for name in dataset_names
         }
 
@@ -105,7 +97,7 @@ def process_files(file):
     file_path = file[0]
     repalce_NAN(file_path, nan_replace_array)
 
-file_list = glob.glob("/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4_m1p2To17p2_dataset_2_unbaised_v2_normalised_train_hd5/*/*")
+file_list = glob.glob("/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4_m1p2To17p2_dataset_2_unbaised_v2_original_combined/*")
 print("Total files :", len(file_list))
 args = list(zip(file_list))
 with Pool(len(file_list)) as p:
