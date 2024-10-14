@@ -1,10 +1,7 @@
 import os, glob, re
-import shutil
-import random
 import json
 import numpy as np
 import h5py
-import math
 import time
 from tqdm import tqdm
 from multiprocessing import Pool
@@ -40,9 +37,10 @@ def alphanum_key(s):
     return [int(c) if c.isdigit() else c for c in re.split('([0-9]+)',s)]
 
 
-def mean_std_original(file="/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4_m3p6To14p8_dataset_2_unbaised_v2_train_hd5/IMG_aToTauTau_Hadronic_tauDR0p4_m3p6To14p8_dataset_2_unbaised_v2_0000_train.h5",outdir = "mean_std_record_original_data_set", batch_size=7000, minimum_nonzero_pixels=3):
+def mean_std_original(file="/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4_m1p2To17p2_dataset_2_unbaised_v2_original_combined_valid.h5",outdir = "mean_std_record_original_data_set_combined", batch_size=7000, minimum_nonzero_pixels=3):
     print(f"processing file ---> {file}\n")
-    tag = file.split('_')[-2]
+    # tag = file.split('_')[-2]
+    tag = file.split('_')[-1].split('.')[0]
     data = h5py.File(file, 'r')
     num_images = data["all_jet"].shape[0]
     print(f"data size: {num_images}\n")
@@ -71,14 +69,15 @@ def mean_std_original(file="/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4
     size_ = np.concatenate(size_, axis=0).T
     mean_ = np.concatenate(mean_, axis=0).T
     std_ = np.concatenate(std_, axis=0).T
-    print("size: ", size_.shape)
-    print("mean: ", mean_.shape)
-    print("std : ", std_.shape)
+    # print("size: ", size_.shape)
+    # print("mean: ", mean_.shape)
+    # print("std : ", std_.shape)
     orig_mean, orig_std = estimate_population_parameters(size_, mean_, std_)
 
 
-    print(f'Means with outliers: {orig_mean}\n' )
-    print(f'Stds with outliers : { orig_std}\n')
+    print(f'Means with outliers {tag}: {orig_mean}\n' )
+    print(f'Stds with outliers {tag}: {orig_std}\n')
+    print(f'number of jets  outliers {tag}: {num_images}\n')
 
     stat = {
             "original_mean":orig_mean,
@@ -89,18 +88,19 @@ def mean_std_original(file="/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    with open(outdir +'/'+ f'original_mean_std_record_dataset_{tag}.json', 'w') as fp:
+    with open(outdir +'/'+ f'original_mean_std_record_dataset_combined_{tag}.json', 'w') as fp:
         json.dump(stat, fp)
-    
+    print(f"-----Process Complete for file------{file}-----------")
     return orig_mean, orig_std
 
 ### Run only once to calculate original mean and std
 def process_files(file):
     file_path = file[0]
-    mean_std_original(file=file_path,outdir = "mean_std_record_original_dataset", batch_size=7000, minimum_nonzero_pixels=3)
-    
-file_list = glob.glob("/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4_m3p6To14p8_dataset_2_unbaised_v2_train_hd5/*")   
+    mean_std_original(file=file_path,outdir = "mean_std_record_original_dataset", batch_size=30000, minimum_nonzero_pixels=3)
+start_time=time.time()   
+file_list = glob.glob("/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4_m1p2To17p2_dataset_2_unbaised_v2_original_combined/*")   
 args = list(zip(file_list)) 
-with Pool(10) as p:
+with Pool(len(file_list)) as p:
     p.map(process_files,args)
-print("-----Process Complete-----------------")
+end_time=time.time()
+print(f"-----All Processes Completed in {(end_time-start_time)/60} minutes-----------------")
