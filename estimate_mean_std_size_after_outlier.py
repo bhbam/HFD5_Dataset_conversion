@@ -109,7 +109,7 @@ def process_files(file):
     file_path = file[0]
     mean_std_after_outlier(file=file_path,outdir = "mean_std_record_after_outlier", batch_size=30000, minimum_nonzero_pixels=3)
 start_time=time.time()
-file_list = glob.glob("/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4_m1p2To17p2_dataset_2_unbaised_v2_original_combined/*")
+file_list = glob.glob("/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4_m1p2To17p2_dataset_2_unbaised_v2_original_combined_hd5/*")
 args = list(zip(file_list))
 with Pool(len(file_list)) as p:
     p.map(process_files,args)
