@@ -3,9 +3,9 @@
 #SBATCH -N 1
 #SBATCH -C cpu
 #SBATCH -q regular
-#SBATCH -J slurm_mea_after_outlier
-#SBATCH -t 12:30:00
-#SBATCH --output=slurm_original_combine_mean_std_after_outlier_%J.out
+#SBATCH -J slurm_mea_std_after_outlier
+#SBATCH -t 06:05:00
+#SBATCH --output=slurm_mean_std_after_outlier_%J.out
 #OpenMP settings:
 export OMP_NUM_THREADS=1
 export OMP_PLACES=threads
