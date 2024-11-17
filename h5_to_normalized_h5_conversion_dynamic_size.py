@@ -1,4 +1,4 @@
-import os, time
+import os, time, random
 import json
 import numpy as np
 import h5py
@@ -44,6 +44,8 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
     file = in_file
     data = h5py.File(f'{file}', 'r')
     num_images = data["all_jet"].shape[0] if in_size == -1 else in_size
+    im_indices = list(range(num_images))
+    random.shuffle(im_indices)
     print(f"processing file ---> {file}\n")
     outdir = out_dir
     outdir_record = out_dir_mean_std_record
@@ -54,18 +56,17 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
     outfile = f'{prefix}_normalized.h5'
 
     with h5py.File(f'{outdir}/{outfile}', 'w') as proper_data:
-        dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'm0']
-        # dataset_names = ['all_jet', 'am', 'ieta', 'iphi']
+        dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'm0', 'apt', 'jetpt', 'taudR']
         datasets = {
-            name: proper_data.create_dataset(
-                name,
-                shape= (0,13, 125, 125) if 'jet' in name else (0,1),
-                maxshape=(None, 13, 125, 125) if 'jet' in name else (None, 1),
-                dtype='float32',  # Specify an appropriate data type
-                compression='lzf',
-                chunks=(chunk_size, 13, 125, 125) if 'jet' in name else (chunk_size, 1),
-            ) for name in dataset_names
-        }
+        name: proper_data.create_dataset(
+            name,
+            shape= (0,13, 125, 125) if 'all_jet' in name else (0,1),
+            maxshape=(None, 13, 125, 125) if 'all_jet' in name else (None, 1),
+            dtype='float32',  # Specify an appropriate data type
+            compression='lzf',
+            chunks=(chunk_size, 13, 125, 125) if 'all_jet' in name else (chunk_size, 1),
+        ) for name in dataset_names
+            }
                 
 
         size_ = []
@@ -74,13 +75,17 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
         start_idx_, end_idx_ = 0, 0
         for start_idx in tqdm(range(0, num_images, batch_size)):
             end_idx = min(start_idx + batch_size, num_images)
-            images_batch = data["all_jet"][start_idx:end_idx, :, :, :]
-            am_batch = data["am"][start_idx:end_idx, :]
-            ieta_batch = data["ieta"][start_idx:end_idx, :]
-            iphi_batch = data["iphi"][start_idx:end_idx, :]
-            m0_batch = data["m0"][start_idx:end_idx, :]
+            sorted_indices = sorted(im_indices[start_idx:end_idx])
+            images_batch = data["all_jet"][sorted_indices, :, :, :]
+            am_batch = data["am"][sorted_indices, :]
+            ieta_batch = data["ieta"][sorted_indices, :]
+            iphi_batch = data["iphi"][sorted_indices, :]
+            m0_batch = data["m0"][sorted_indices, :]
+            apt_batch = data["apt"][sorted_indices, :]
+            jetpt_batch = data["jetpt"][sorted_indices, :]
+            taudR_batch = data["taudR"][sorted_indices, :]
 
-            images_batch[np.abs(images_batch) < 1.e-5] = 0
+            images_batch[np.abs(images_batch) < 1.e-3] = 0
             non_zero_mask = images_batch != 0
             
             images_non_zero = np.where(non_zero_mask, images_batch, np.nan)
@@ -95,6 +100,9 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
             ieta_batch = ieta_batch[non_empty_event]
             iphi_batch = iphi_batch[non_empty_event]
             m0_batch   = m0_batch[non_empty_event]
+            apt_batch   = apt_batch[non_empty_event]
+            jetpt_batch   = jetpt_batch[non_empty_event]
+            taudR_batch   = taudR_batch[non_empty_event]
     
             non_outlier_event = np.all(np.logical_and(size_channel > 1, mean_channel < (orig_mean + 10 * orig_std)), axis=1)
 
@@ -106,6 +114,9 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
             ieta_batch = ieta_batch[non_outlier_event]
             iphi_batch = iphi_batch[non_outlier_event]
             m0_batch = m0_batch[non_outlier_event]
+            apt_batch = apt_batch[non_outlier_event]
+            jetpt_batch = jetpt_batch[non_outlier_event]
+            taudR_batch = taudR_batch[non_outlier_event]
 
 
             mean_channel = mean_channel[non_outlier_event]
@@ -125,7 +136,7 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
             
 
             for name, dataset in datasets.items():
-                dataset.resize((end_idx_,13, 125, 125) if 'jet' in name else (end_idx_,1))
+                dataset.resize((end_idx_,13, 125, 125) if 'all_jet' in name else (end_idx_,1))
 
 
             proper_data['all_jet'][start_idx_:end_idx_,:,:,:] = images_non_zero
@@ -133,6 +144,9 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
             proper_data['ieta'][start_idx_:end_idx_] = ieta_batch
             proper_data['iphi'][start_idx_:end_idx_] = iphi_batch
             proper_data['m0'][start_idx_:end_idx_] = m0_batch
+            proper_data['apt'][start_idx_:end_idx_] = apt_batch
+            proper_data['jetpt'][start_idx_:end_idx_] = jetpt_batch
+            proper_data['taudR'][start_idx_:end_idx_] = taudR_batch
             # print("_____________________________________________________________")
 
     data.close()
@@ -191,13 +205,12 @@ if __name__ == "__main__":
     # mean and std not equal to 0 and 1 because we replace all non values with zero and normalized
     #----------------------------chage these values for removing outlier and normalization -------------------------------------------------
     
-    orig_mean = np.array([2.0213729049447173, -0.6212337778385966, 0.4101959111624071, 0.44232572099413325, 0.02601063666646348, 1.0307435733760915, 1.027161095232908, 1.0314644000120317, 1.0389142152234738, 1.6267729507544177, 1.682110558106714, 1.6807049908347997, 1.6856835949463678])
-    orig_std = np.array([41.89302377240654, 281.7486185723839, 27.530200528379964, 2.0918438486330366, 0.08356221974207988, 0.18326159702115774, 0.17086703465837277, 0.1850492889044042, 0.2091712532384953, 0.9963542872097075, 1.0910279320573346, 1.0783809219516163, 1.127029077328961])
-  
+    orig_mean = np.array([4.645458183417245, 0.06504846315331393, 0.34378980642869167, 0.7972543466848049, 0.023563469460984632, 1.0280894253257178, 1.0346738050616027, 1.0358756760067354, 1.0445996914155187, 1.8379277268808463, 1.8892057488773362, 1.8500928664771055, 1.842420185120387])
+    orig_std = np.array([20033.623117109404, 328.84449319780407, 27.577214664898687, 3.566478596451319, 0.08592338693956458, 0.17582382685766373, 0.19342414362074953, 0.19792395671219273, 0.22449221492860144, 1.1686338166301715, 1.2592183032480533, 1.2164901235916066, 1.258055319930126])
 
-    after_outlier_mean = np.array([2.00186027194732, -0.9327667763785292, 0.4117189123851803, 0.4427790365727392, 0.026002430537122163, 1.0307441059908344, 1.0271344385922005, 1.0314362031273734, 1.0389161993823062, 1.6264642395105546, 1.6817442443921755, 1.6806286899903164, 1.6854234605783123])
-    after_outlier_std = np.array([11.602097269944196, 281.72189885561073, 27.51383690353155, 2.097769151892147, 0.08358663446283951, 0.1832351861511353, 0.1707668627208025, 0.18496502097288314, 0.20920433520293422, 0.9961141821301918, 1.090744381124439, 1.078384463638479, 1.1269819423138625])
-    
+
+    after_outlier_mean = np.array([2.4314964727757697, 0.06501383182549303, 0.34379053647030056, 0.79725373610616, 0.023563455744435583, 1.0280893908914124, 1.0346738086494567, 1.0358756815197283, 1.0445990762858348, 1.8379278613760586, 1.8892058687311295, 1.8500929465675646, 1.8424202360121757])
+    after_outlier_std = np.array([1702.7273741644356, 328.84456040003045, 27.577235444026627, 3.566478604268535, 0.08592335222556842, 0.17582373119664452, 0.19342415924016276, 0.19792398573585634, 0.2244858579156357, 1.168633957486646, 1.2592184112366382, 1.2164902420511516, 1.258055321253833])
     #----------------------------------set for mass regression----------------------------------------------------------------------------
     
     h5_h5_normalizes(infile, out_dir, out_dir_record, in_size, batch_size, chunk_size)

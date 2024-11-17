@@ -55,8 +55,7 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
     outfile = f'{prefix}_normalized.h5'
 
     with h5py.File(f'{outdir}/{outfile}', 'w') as proper_data:
-        dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'm0']
-        # dataset_names = ['all_jet', 'am', 'ieta', 'iphi']
+        dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'm0', 'apt', 'jetpt', 'taudR']
         datasets = {
             name: proper_data.create_dataset(
                 name,
@@ -78,8 +77,11 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
             ieta_batch = data["ieta"][start_idx:end_idx, :]
             iphi_batch = data["iphi"][start_idx:end_idx, :]
             m0_batch = data["m0"][start_idx:end_idx, :]
+            apt_batch = data["apt"][start_idx:end_idx, :]
+            jetpt_batch = data["jetpt"][start_idx:end_idx, :]
+            taudR_batch = data["tausdR"][start_idx:end_idx, :]
 
-            images_batch[np.abs(images_batch) < 1.e-5] = 0
+            images_batch[np.abs(images_batch) < 1.e-3] = 0
             non_zero_mask = images_batch != 0
             
             images_non_zero = np.where(non_zero_mask, images_batch, np.nan)
@@ -94,6 +96,9 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
             ieta_batch = ieta_batch[non_empty_event]
             iphi_batch = iphi_batch[non_empty_event]
             m0_batch   = m0_batch[non_empty_event]
+            apt_batch   = apt_batch[non_empty_event]
+            jetpt_batch   = jetpt_batch[non_empty_event]
+            taudR_batch   = taudR_batch[non_empty_event]
     
             non_outlier_event = np.all(np.logical_and(size_channel > 1, mean_channel < (orig_mean + 10 * orig_std)), axis=1)
 
@@ -105,6 +110,9 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
             ieta_batch = ieta_batch[non_outlier_event]
             iphi_batch = iphi_batch[non_outlier_event]
             m0_batch = m0_batch[non_outlier_event]
+            apt_batch = apt_batch[non_outlier_event]
+            jetpt_batch = jetpt_batch[non_outlier_event]
+            taudR_batch = taudR_batch[non_outlier_event]
 
 
             mean_channel = mean_channel[non_outlier_event]
@@ -129,6 +137,9 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
             proper_data['ieta'][start_idx_:end_idx_] = ieta_batch
             proper_data['iphi'][start_idx_:end_idx_] = iphi_batch
             proper_data['m0'][start_idx_:end_idx_] = m0_batch
+            proper_data['apt'][start_idx_:end_idx_] = apt_batch
+            proper_data['jetpt'][start_idx_:end_idx_] = jetpt_batch
+            proper_data['taudR'][start_idx_:end_idx_] = taudR_batch
             # print("_____________________________________________________________")
 
     data.close()
