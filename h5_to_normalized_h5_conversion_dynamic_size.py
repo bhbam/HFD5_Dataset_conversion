@@ -37,15 +37,12 @@ def alphanum_key(s):
     """
     return [int(c) if c.isdigit() else c for c in re.split('([0-9]+)',s)]
 
-
 def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size=-1, batch_size=3200, chunk_size=32):
     
     
     file = in_file
     data = h5py.File(f'{file}', 'r')
     num_images = data["all_jet"].shape[0] if in_size == -1 else in_size
-    im_indices = list(range(num_images))
-    random.shuffle(im_indices)
     print(f"processing file ---> {file}\n")
     outdir = out_dir
     outdir_record = out_dir_mean_std_record
@@ -75,15 +72,14 @@ def h5_h5_normalizes(in_file='', out_dir='', out_dir_mean_std_record='', in_size
         start_idx_, end_idx_ = 0, 0
         for start_idx in tqdm(range(0, num_images, batch_size)):
             end_idx = min(start_idx + batch_size, num_images)
-            sorted_indices = sorted(im_indices[start_idx:end_idx])
-            images_batch = data["all_jet"][sorted_indices, :, :, :]
-            am_batch = data["am"][sorted_indices, :]
-            ieta_batch = data["ieta"][sorted_indices, :]
-            iphi_batch = data["iphi"][sorted_indices, :]
-            m0_batch = data["m0"][sorted_indices, :]
-            apt_batch = data["apt"][sorted_indices, :]
-            jetpt_batch = data["jetpt"][sorted_indices, :]
-            taudR_batch = data["taudR"][sorted_indices, :]
+            images_batch = data["all_jet"][start_idx:end_idx, :, :, :]
+            am_batch = data["am"][start_idx:end_idx, :]
+            ieta_batch = data["ieta"][start_idx:end_idx, :]
+            iphi_batch = data["iphi"][start_idx:end_idx, :]
+            m0_batch = data["m0"][start_idx:end_idx, :]
+            apt_batch = data["apt"][start_idx:end_idx, :]
+            jetpt_batch = data["jetpt"][start_idx:end_idx, :]
+            taudR_batch = data["taudR"][start_idx:end_idx, :]
 
             images_batch[np.abs(images_batch) < 1.e-3] = 0
             non_zero_mask = images_batch != 0
@@ -180,7 +176,7 @@ if __name__ == "__main__":
                         help='input data path')
     parser.add_argument('--output_data_path', default='/pscratch/sd/b/bbbam/IMG_aToTauTau_masregression_samples_m1p2To17p2_combined_normalized',
                         help='output data path')
-    parser.add_argument('--batch_size', type=int, default=30000, 
+    parser.add_argument('--batch_size', type=int, default=6400, 
                         help='input batch size for conversion')
     parser.add_argument('--chunk_size', type=int, default=32, 
                         help='chunk size')
@@ -201,7 +197,7 @@ if __name__ == "__main__":
 
 
     #--------------------------dir to store mean and std after normalized--------------------------------------------
-    out_dir_record = 'mean_std_record_normalized_signal_sample'
+    out_dir_record = 'mean_std_record_normalized_massregression_sample'
     # mean and std not equal to 0 and 1 because we replace all non values with zero and normalized
     #----------------------------chage these values for removing outlier and normalization -------------------------------------------------
     
