@@ -15,7 +15,8 @@ def combine_h5_files(master_folder, out_dir, dest_file, batch_size):
     # Collect file lengths and initialize per-file data
     files_data = []
 
-    dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'm0', 'apt', 'jetpt', 'taudR']
+    # dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'm0', 'apt', 'jetpt', 'taudR']
+    dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'apt']
 
     total_length = 0
 
@@ -186,11 +187,11 @@ def get_data_to_write(buffers, num_entries):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--input_data_path', default='./normalized_nan_replaced_train_h5',
+    parser.add_argument('--input_data_path', default='/pscratch/sd/b/bbbam/IMG_massregression_sample_mass_negative_1p2To18_GeV_normalized_combined_train',
                         help='input data path')
-    parser.add_argument('--output_data_path', default='./',
+    parser.add_argument('--output_data_path', default='/pscratch/sd/b/bbbam/IMG_massregression_sample_mass_Neg_1p2To18_pt_30T0300_GeV_unbaised_normalized_combined',
                         help='output data path')
-    parser.add_argument('--output_data_file', default='test_IMG_aToTauTau_Hadronic_combined_train.h5',
+    parser.add_argument('--output_data_file', default='IMG_massregression_sample_mass_Neg_1p2To18_pt_30T0300_GeV_unbaised_normalized_combined_train.h5',
                         help='output data file')
     parser.add_argument('--batch_size', type=int, default=3200,
                         help='input batch size for training')
