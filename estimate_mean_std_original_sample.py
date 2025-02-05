@@ -49,6 +49,8 @@ def mean_std_original(file="/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4
     std_ = []
     batch_size = batch_size
     for start_idx in tqdm(range(0, num_images, batch_size)):
+        if images[0, ...].max() > 500:
+            continue
         end_idx = min(start_idx + batch_size, num_images)
         images_batch = data["all_jet"][start_idx:end_idx, :, :, :]
         images_batch[np.abs(images_batch) < 1.e-3] = 0
