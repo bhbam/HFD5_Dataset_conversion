@@ -51,7 +51,7 @@ if __name__ == "__main__":
                         help='output data path')
     parser.add_argument('--output_data_file', default='IMG_aToTauTau_Hadronic_combined_train.h5', 
                         help='output data file')
-    parser.add_argument('--batch_size', type=int, default=5000, 
+    parser.add_argument('--batch_size', type=int, default=640, 
                         help='input batch size for training')
     args = parser.parse_args()
     combine_h5_files(args.input_data_path, args.output_data_path, args.output_data_file, args.batch_size)
