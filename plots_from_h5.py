@@ -23,7 +23,7 @@ cms_colors = [
 # Create the CMS colormap
 cms_cmap = LinearSegmentedColormap.from_list('CMS', cms_colors)
 
-file =glob.glob('/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_with_AToTau_decay_m0To18_pt30T0300_unbiased_normalised_combined_train_h5/IMG_aToTauTau_Hadronic_with_AToTau_decay_m0To18_pt30T0300_unbiased_combined_train.h5')
+file =glob.glob('/pscratch/sd/b/bbbam/IMG_massregssion_samples_m0To18_pt30To300_with_unphysical_Tau_decay_original_unbiased_train_h5/*.h5')
 file_ = file[0]
 # data = h5py.File(f'{file_}', 'r')
 # num_images = len(data["all_jet"])
@@ -44,7 +44,7 @@ if not os.path.exists(out_dir):
 print("Reading data Done")
 
 
-mass_bins = np.arange(-0.4,18.5,.4)
+mass_bins = np.arange(-0.4,4.1,.4)
 pt_bins = np.arange(25,306,5)
 fig, ax = plt.subplots(figsize=(20,15))
 # norm = mcolors.TwoSlopeNorm(vmin=5000, vmax = 7000, vcenter=5500)
