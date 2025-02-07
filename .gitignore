@@ -1,3 +1,4 @@
 slurm*
 *.out
 massreg_plots
+test.py

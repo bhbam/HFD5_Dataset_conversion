@@ -39,6 +39,30 @@ def combine_h5_files(master_folder, out_dir, dest_file, batch_size):
             files_data.append(file_data)
         except Exception as e:
             logging.error(f"Failed to process file {file_name}: {e}")
+    # for file_name in source_files:
+    #     try:
+    #         with h5py.File(file_name, 'r') as h5_source:
+    #             # Validate the existence of all required datasets
+    #             missing = [name for name in dataset_names if name not in h5_source]
+    #             if missing:
+    #                 logging.error(f"File {file_name} is missing datasets: {missing}. Skipping this file.")
+    #                 continue  # Skip files with missing datasets
+                
+    #             file_data = {}
+    #             file_data['filename'] = file_name
+    #             file_data['file'] = h5py.File(file_name, 'r')  # Open again if needed later
+    #             file_data['current_pos'] = 0
+    #             file_data['buffer'] = None
+    #             file_data['buffer_pos'] = 0
+                
+    #             # Use one of the datasets (e.g., 'all_jet') to determine file length
+    #             primary_dataset = h5_source[dataset_names[0]]
+    #             file_length = primary_dataset.shape[0]
+    #             file_data['length'] = file_length
+    #             total_length += file_length
+    #             files_data.append(file_data)
+    #     except Exception as e:
+    #         logging.error(f"Failed to process file {file_name}: {e}")
 
     if total_length == 0:
         logging.error("No data to process.")

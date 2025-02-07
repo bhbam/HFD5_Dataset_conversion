@@ -4,7 +4,7 @@
 #SBATCH -C cpu
 #SBATCH -q regular
 #SBATCH -J unbiased_h5
-#SBATCH -t 23:30:00
+#SBATCH -t 10:30:00
 #SBATCH --output=slurm_unbaised_h5_%J.out
 #OpenMP settings:
 export OMP_NUM_THREADS=1
