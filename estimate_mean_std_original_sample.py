@@ -5,6 +5,16 @@ import h5py
 import time
 from tqdm import tqdm
 from multiprocessing import Pool
+import argparse
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--input_data_file', default='/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_with_AToTau_decay_m0To18_pt30T0300_original_unbiased_combined_h5/IMG_aToTauTau_Hadronic_with_AToTau_decay_m0To18_pt30T0300_original_unbiased_combined_train.h5',
+                    help='input data path')
+parser.add_argument('--output_data_path', default='run_3_maean_std_with_Tau_decay_original',
+                    help='output data path')
+parser.add_argument('--batch_size', type=int, default=320,
+                    help='input batch size for training')
+args = parser.parse_args()
 
 minimum_nonzero_pixels = 3
 
@@ -37,7 +47,7 @@ def alphanum_key(s):
     return [int(c) if c.isdigit() else c for c in re.split('([0-9]+)',s)]
 
 
-def mean_std_original(file="/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4_m1p2To17p2_dataset_2_unbaised_v2_original_combined_valid.h5",outdir = "run_3_mean_std_record_original", batch_size=7000, minimum_nonzero_pixels=3):
+def mean_std_original(file=args.input_data_file,outdir = args.output_data_path, batch_size= args.batch_size, minimum_nonzero_pixels=3):
     print(f"processing file ---> {file}\n")
     # tag = file.split('_')[-2]
     tag = file.split('_')[-1].split('.')[0]
@@ -49,10 +59,10 @@ def mean_std_original(file="/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4
     std_ = []
     batch_size = batch_size
     for start_idx in tqdm(range(0, num_images, batch_size)):
-        if images[:, 0, ...].max() > 500:
-            continue
         end_idx = min(start_idx + batch_size, num_images)
         images_batch = data["all_jet"][start_idx:end_idx, :, :, :]
+        if images_batch[:, 0, ...].max() > 500:
+            continue
         images_batch[np.abs(images_batch) < 1.e-3] = 0
         non_zero_mask = images_batch != 0
         images_non_zero = np.where(non_zero_mask, images_batch, np.nan)
@@ -93,13 +103,7 @@ def mean_std_original(file="/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_tauDR0p4
     return orig_mean, orig_std
 
 ### Run only once to calculate original mean and std
-def process_files(file):
-    file_path = file[0]
-    mean_std_original(file=file_path,outdir = "run_3_mean_std_record_original", batch_size=30000, minimum_nonzero_pixels=3)
 start_time=time.time()   
-file_list = glob.glob("/pscratch/sd/b/bbbam/IMG_aToTauTau_m1p2T018_combined_h5/*.h5")   
-args = list(zip(file_list)) 
-with Pool(len(file_list)) as p:
-    p.map(process_files,args)
+mean_std_original(file=args.input_data_file,outdir = args.output_data_path, batch_size=args.batch_size, minimum_nonzero_pixels=3)
 end_time=time.time()
 print(f"-----All Processes Completed in {(end_time-start_time)/60} minutes-----------------")

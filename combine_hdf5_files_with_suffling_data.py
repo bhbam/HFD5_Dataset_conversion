@@ -103,8 +103,10 @@ def combine_h5_files(master_folder, out_dir, dest_file, batch_size):
         while active_files:
             # Compute remaining lengths and probabilities
             remaining_lengths = np.array([f['length'] - f['current_pos'] for f in active_files])
+            # try:
             probabilities = remaining_lengths / np.sum(remaining_lengths)
-
+            # except:
+            #     logging.info(f"Remaining lenths on active file is ZERO!!!}")
             # Choose a file index based on probabilities
             file_indices = np.arange(len(active_files))
             selected_index = np.random.choice(file_indices, p=probabilities)

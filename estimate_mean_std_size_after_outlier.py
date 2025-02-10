@@ -5,6 +5,17 @@ import h5py
 import time
 from tqdm import tqdm
 from multiprocessing import Pool
+import argparse
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--input_data_file', default='/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_with_AToTau_decay_m0To18_pt30T0300_original_unbiased_combined_h5/IMG_aToTauTau_Hadronic_with_AToTau_decay_m0To18_pt30T0300_original_unbiased_combined_train.h5',
+                    help='input data path')
+parser.add_argument('--output_data_path', default='run_3_maean_std_with_AToTau_decay_after_outlier',
+                    help='output data path')
+parser.add_argument('--batch_size', type=int, default=320,
+                    help='input batch size for training')
+parser.add_argument('-p', '--process',     default='Tau',    type=str, help='select signal or background or other')
+args = parser.parse_args()
 
 minimum_nonzero_pixels = 3
 
@@ -36,10 +47,18 @@ def alphanum_key(s):
     """
     return [int(c) if c.isdigit() else c for c in re.split('([0-9]+)',s)]
 
-orig_mean = np.array([4.645458183417245, 0.06504846315331393, 0.34378980642869167, 0.7972543466848049, 0.023563469460984632, 1.0280894253257178, 1.0346738050616027, 1.0358756760067354, 1.0445996914155187, 1.8379277268808463, 1.8892057488773362, 1.8500928664771055, 1.842420185120387])
-orig_std = np.array([20033.623117109404, 328.84449319780407, 27.577214664898687, 3.566478596451319, 0.08592338693956458, 0.17582382685766373, 0.19342414362074953, 0.19792395671219273, 0.22449221492860144, 1.1686338166301715, 1.2592183032480533, 1.2164901235916066, 1.258055319930126])
+# orig_mean = np.array([4.645458183417245, 0.06504846315331393, 0.34378980642869167, 0.7972543466848049, 0.023563469460984632, 1.0280894253257178, 1.0346738050616027, 1.0358756760067354, 1.0445996914155187, 1.8379277268808463, 1.8892057488773362, 1.8500928664771055, 1.842420185120387])
+# orig_std = np.array([20033.623117109404, 328.84449319780407, 27.577214664898687, 3.566478596451319, 0.08592338693956458, 0.17582382685766373, 0.19342414362074953, 0.19792395671219273, 0.22449221492860144, 1.1686338166301715, 1.2592183032480533, 1.2164901235916066, 1.258055319930126])
 
-def mean_std_after_outlier(file="/pscratch/sd/b/bbbam/MG_aToTauTau_Hadronic_tauDR0p4_m1p2To17p2_dataset_2_unbaised_v2_original_combined/IMG_aToTauTau_Hadronic_tauDR0p4_m1p2To17p2_dataset_2_unbaised_v2_original_combined_valid.h5",outdir = "mean_std_record_after_outlier_combined", batch_size=7000, minimum_nonzero_pixels=3):
+if args.process == 'AToTau': 
+    orig_mean = np.array([1.8791452984163186, 0.2674524598626779, 0.35153689493736284, 0.7878162097879023, 0.024239830704344573, 1.027541204971614, 1.0344045256989947, 1.035537179892588, 1.0442138430880317, 1.837769635847636, 1.8887950692662832, 1.8494212404388355, 1.8417164063541762])
+    orig_std  = np.array([6.761916500416225, 339.3560755701527, 28.754845757145404, 3.6045501147971994, 0.08831068743316711, 0.17377059445661838, 0.19214819487335993, 0.1961268040044825, 0.222527558527959, 1.1680438122052703, 1.2583582672167148, 1.2156374561580308, 1.2572342912783392])
+
+if args.process =='Tau':
+    orig_mean = np.array([1.906265102393845, -0.08028830594338829, 0.34500512542334905, 0.8029067642189486, 0.02441142864108319, 1.0275023546029276, 1.034339585768814, 1.0354899599085485, 1.0441959034793467, 1.837467114020025, 1.8884548801545775, 1.8491800080952778, 1.8415312330804476])
+    orig_std  = np.array([7.0807489190315795, 330.8728439095343, 27.861682898924503, 3.7737618332518608, 0.09203277389342256, 0.1736618805653151, 0.19198372072838277, 0.19602720185041375, 0.22255352580988255, 1.1678697082624794, 1.2581690893841793, 1.2154851091755547, 1.2571265136079095])
+
+def mean_std_after_outlier(file=args.input_data_file,outdir = args.output_data_path, batch_size=args.batch_size, minimum_nonzero_pixels=3):
     print(f"processing file ---> {file}\n")
     # tag = file.split('_')[-2]
     tag = file.split('_')[-1].split('.')[0]
@@ -98,13 +117,7 @@ def mean_std_after_outlier(file="/pscratch/sd/b/bbbam/MG_aToTauTau_Hadronic_tauD
     return after_outlier_mean, after_outlier_std
 
 # ### Run only once to calculate the mean and std after outlier removed
-def process_files(file):
-    file_path = file[0]
-    mean_std_after_outlier(file=file_path,outdir = "run_3_mean_std_record_after_outlier", batch_size=30000, minimum_nonzero_pixels=3)
 start_time=time.time()
-file_list = glob.glob("/pscratch/sd/b/bbbam/IMG_aToTauTau_m1p2T018_combined_h5/*.h5")
-args = list(zip(file_list))
-with Pool(len(file_list)) as p:
-    p.map(process_files,args)
+mean_std_after_outlier(file=args.input_data_file,outdir = args.output_data_path, batch_size=args.batch_size, minimum_nonzero_pixels=3)
 end_time=time.time()
 print(f"-----All Processes Completed in {(end_time-start_time)/60} minutes-----------------")
