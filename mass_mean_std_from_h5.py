@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 
 outdir_record = 'mass_mean_std_record'
-file =glob.glob('/pscratch/sd/b/bbbam/IMG_aToTauTau_m1p2T018_combined_normalized_h5/*train*')
+file =glob.glob('/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_m1p2To18_pt30T0300_original_combined_unbiased_h5/*train*')
 batch_size =6400
 file_ = file[0]
 data = h5py.File(f'{file_}', 'r')

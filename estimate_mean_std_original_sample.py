@@ -61,7 +61,7 @@ def mean_std_original(file=args.input_data_file,outdir = args.output_data_path, 
     for start_idx in tqdm(range(0, num_images, batch_size)):
         end_idx = min(start_idx + batch_size, num_images)
         images_batch = data["all_jet"][start_idx:end_idx, :, :, :]
-        if images_batch[:, 0, ...].max() > 500:
+        if images_batch[:, 0, ...].max() > 1000:
             continue
         images_batch[np.abs(images_batch) < 1.e-3] = 0
         non_zero_mask = images_batch != 0

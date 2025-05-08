@@ -45,11 +45,11 @@ def copy_datasets(source, dest, initialized_datasets, batch_size):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--input_data_path', default='/pscratch/sd/b/bbbam/normalized_nan_replaced_train_h5', 
+    parser.add_argument('--input_data_path', default='/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_m3p6To18_pt30T0300_unbiased_train_h5', 
                         help='input data path')
-    parser.add_argument('--output_data_path', default='/pscratch/sd/b/bbbam', 
+    parser.add_argument('--output_data_path', default='/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_m3p6To18_pt30T0300_unbiased_combined_h5', 
                         help='output data path')
-    parser.add_argument('--output_data_file', default='IMG_aToTauTau_Hadronic_combined_train.h5', 
+    parser.add_argument('--output_data_file', default='IMG_aToTauTau_Hadronic_m3p6To18_pt30T0300_unbiased_combined_train.h5', 
                         help='output data file')
     parser.add_argument('--batch_size', type=int, default=640, 
                         help='input batch size for training')

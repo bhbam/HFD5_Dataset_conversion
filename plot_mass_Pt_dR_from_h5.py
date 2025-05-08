@@ -28,7 +28,7 @@ cms_colors = [
 cms_cmap = LinearSegmentedColormap.from_list('CMS', cms_colors)
 
 output_path = "plots_mass_pt_dR"
-file =glob.glob('/pscratch/sd/b/bbbam/IMG_aToTauTau_m1p2T018_combined_normalized_h5/*train*')
+file =glob.glob('/pscratch/sd/b/bbbam/IMG_aToTauTau_Hadronic_m1p2To18_pt30T0300_original_combined_unbiased_h5/*valid*')
 file_ = file[0]
 data = h5py.File(f'{file_}', 'r')
 num_images = len(data["all_jet"])
