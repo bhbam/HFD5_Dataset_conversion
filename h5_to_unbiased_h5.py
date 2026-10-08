@@ -19,22 +19,22 @@ def process_bin(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_file', default='/pscratch/sd/b/bbbam/IMG_Tau_hadronic_massregssion_samples_m0To3p6_pt30To300_v2_original_combined/IMG_Tau_hadronic_massregssion_samples_m0To3p6_pt30To300_v2_original_combined_valid.h5',
+    parser.add_argument('--input_file', default='/global/cfs/cdirs/m4392/bbbam/IMG_aToTauTau_mNeg1p2T018_unbiased_original_combined_with_stretching_lower_unphy_and_upper_mass_bins_h5/IMG_aToTauTau_Hadronic_m1p2To18_pt30T0300_unbiased_original_combined_with_stretching_unphy_bins_train_with_stretching_higher_mass_bins.h5',
                         help='input data ')
-    parser.add_argument('--output_data_path', default='/global/cfs/cdirs/m4392/bbbam/IMG_Tau_hadronic_massregssion_samples_m0To3p6_pt30To300_v2_original_combined_unbaised',
+    parser.add_argument('--output_data_path', default='/global/cfs/cdirs/m4392/bbbam/IMG_Tau_hadronic_massregssion_samples_mN1p2To22_pt30To300_original_combined_unbaised',
                         help='output data path')
-    parser.add_argument('--output_file', default='IMG_Tau_hadronic_massregssion_samples_m0To3p6_pt30To300_v2_original_combined_unbiased_valid.h5',
+    parser.add_argument('--output_file', default='IMG_Tau_hadronic_massregssion_samples_m1p2To22_pt30To300_original_combined_unbiased_train.h5',
                         help='output file name')
     parser.add_argument('--batch_size', type=int, default=320,
                         help='input batch size for conversion')
     parser.add_argument('--chunk_size', type=int, default=32,
                         help='chunk size')
-    parser.add_argument('--bin_count', type=int, default=200,
+    parser.add_argument('--bin_count', type=int, default=900,
                         help='number entry in each bin needed')
     args = parser.parse_args()
 
     # Define mass and pt bin edges
-    mass_bins = np.arange(0, 3.7, 0.4)
+    mass_bins = np.arange(-1.2, 22.1, 0.4)
     pt_bins = np.arange(30, 301, 5)
 
     # Open the input file

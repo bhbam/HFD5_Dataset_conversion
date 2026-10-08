@@ -21,7 +21,7 @@ cms_cmap = LinearSegmentedColormap.from_list('CMS', cms_colors)
 
 # Get file path
 # file = glob.glob('/global/cfs/cdirs/m4392/bbbam/IMG_aToTauTau_Hadronic_m3p6To18_pt30T0300_unbiased_combined_h5/*valid*.h5')
-file = glob.glob('/global/cfs/cdirs/m4392/bbbam/IMG_aToTauTau_Hadronic_m3p6To18_pt30T0300_unbiased_combined_h5/*train*.h5')
+file = glob.glob('/global/cfs/cdirs/m4392/bbbam/IMG_ATo2Tau_hadronic_massregssion_samples_mN1p2To22_pt30To300_original_combined_unbaised/*valid*.h5')
 file_ = file[0]
 
 with h5py.File(file_, "r") as data:
@@ -30,43 +30,43 @@ with h5py.File(file_, "r") as data:
     apt = data["apt"][:, 0]
     # taudR_values = data['taudR'][:, 0]
     print("Original total events:", len(am))
-    print("Mean of mass ", np.mean(am))
-    print("std of mass ", np.std(am))
+    # print("Mean of mass ", np.mean(am))
+    # print("std of mass ", np.std(am))
     # print("jet shape ", data["all_jet"].shape)
 
 out_dir = 'massreg_plots'
 os.makedirs(out_dir, exist_ok=True)
 
 # Define mass and pT bins
-mass_bins = np.arange(-2.2, 22.5, 0.4)
-pt_bins = np.arange(25, 306, 5)
+mass_bins = np.arange(-1.2, 22.1, 0.4)
+pt_bins = np.arange(30, 301, 5)
 
 # 2D histogram of am vs apt
-fig, ax = plt.subplots(figsize=(20, 15))
-plt.hist2d(np.squeeze(am), np.squeeze(apt), bins=[mass_bins, pt_bins], cmap=cms_cmap)
+fig, ax = plt.subplots(dpi=300)
+plt.hist2d(np.squeeze(am), np.squeeze(apt), bins=[mass_bins, pt_bins])
 plt.xlabel(r'$\mathrm{A_{mass}}$ [GeV]')
 plt.ylabel(r'$\mathrm{A_{pT}}$ [GeV]')
-plt.colorbar().set_label(label='Events/ (0.4, 5) GeV')
-plt.grid(color='r', linestyle='--', linewidth=.2)
-hep.cms.label(llabel="Simulation Preliminary", rlabel="13.6 TeV", loc=0, ax=ax)
-plt.savefig(f"{out_dir}/mass_pt_plot.png", dpi=300, bbox_inches='tight')
+plt.colorbar()#.set_label(label='Events/ (0.4, 5) GeV')
+# plt.grid(color='r', linestyle='--', linewidth=.2)
+hep.cms.label(llabel="Simulation", rlabel="13.6 TeV", loc=0, ax=ax)
+plt.savefig(f"{out_dir}/mass_N1p2To22_pt_plot_unbiased_valid.pdf", dpi=300, bbox_inches='tight')
 plt.close()
 
 # Histogram for mass (am)
-fig, ax = plt.subplots()
-plt.hist(np.squeeze(am), bins=mass_bins)
+fig, ax = plt.subplots(dpi=300)
+plt.hist(np.squeeze(am), histtype='step', bins=mass_bins)
 plt.xlabel(r'$\mathrm{A_{mass}}$ [GeV]')
-hep.cms.label(llabel="Simulation Preliminary", rlabel="13.6 TeV", loc=0, ax=ax)
-plt.savefig(f"{out_dir}/mass_plot.png", dpi=300, bbox_inches='tight')
+hep.cms.label(llabel="Simulation", rlabel="13.6 TeV", loc=0, ax=ax)
+plt.savefig(f"{out_dir}/mass_plot_N1p2To22_unbiased_valid.pdf", dpi=300, bbox_inches='tight')
 plt.close()
 
-# Histogram for pT (apt)
-fig, ax = plt.subplots()
-plt.hist(np.squeeze(apt), bins=pt_bins)
-plt.xlabel(r'$\mathrm{A_{pT}}$ [GeV]')
-hep.cms.label(llabel="Simulation Preliminary", rlabel="13.6 TeV", loc=0, ax=ax)
-plt.savefig(f"{out_dir}/pt_plot.png", dpi=300, bbox_inches='tight')
-plt.close()
+# # Histogram for pT (apt)
+# fig, ax = plt.subplots(dpi=300)
+# plt.hist(np.squeeze(apt), bins=pt_bins)
+# plt.xlabel(r'$\mathrm{A_{pT}}$ [GeV]')
+# hep.cms.label(llabel="Simulation Preliminary", rlabel="13.6 TeV", loc=0, ax=ax)
+# plt.savefig(f"{out_dir}/pt_plot.png", dpi=300, bbox_inches='tight')
+# plt.close()
 
 # Histogram for taudR values
 # fig, ax = plt.subplots()

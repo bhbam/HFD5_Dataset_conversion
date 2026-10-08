@@ -24,7 +24,8 @@ def alphanum_key(s):
 
 def create_new_hdf5_file(filename, max_rows_per_file):
     hdf5_file = h5py.File(filename, 'w')
-    dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'm0', 'apt', 'jetpt', 'taudR']
+    # dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'm0', 'apt', 'jetpt', 'taudR']
+    dataset_names = ['all_jet','y', 'ieta', 'iphi']
     total_samples = max_rows_per_file
     datasets = {
         name: hdf5_file.create_dataset(
@@ -43,37 +44,40 @@ def append_data_to_hdf5(hdf5_file, start_index, end_index, df):
 
     print("Writing to file", hdf5_file)
     xj = df.columns.get_loc('X_jet')
-    am = df.columns.get_loc('am')
+    # am = df.columns.get_loc('am')
+    y = df.columns.get_loc('y')
     ieta = df.columns.get_loc('ieta')
     iphi = df.columns.get_loc('iphi')
-    m0 = df.columns.get_loc('m0')
-    apt = df.columns.get_loc('apt')
-    jetpt = df.columns.get_loc('jetpt')
-    taudR = df.columns.get_loc('taudR')
+    # m0 = df.columns.get_loc('m0')
+    # apt = df.columns.get_loc('apt')
+    # jetpt = df.columns.get_loc('jetpt')
+    # taudR = df.columns.get_loc('taudR')
 
     im = np.array(np.array(np.array(df.iloc[:, xj].tolist()).tolist()).tolist())
-    am = np.array(df.iloc[:,am])
+    # am = np.array(df.iloc[:,am])
+    y = np.array(df.iloc[:,y])
     ieta = np.array(df.iloc[:,ieta])
     iphi = np.array(df.iloc[:,iphi])
-    m0 = np.array(df.iloc[:,m0])
-    apt = np.array(df.iloc[:,apt])
-    jetpt = np.array(df.iloc[:,jetpt])
-    taudR = np.array(df.iloc[:,taudR])
+    # m0 = np.array(df.iloc[:,m0])
+    # apt = np.array(df.iloc[:,apt])
+    # jetpt = np.array(df.iloc[:,jetpt])
+    # taudR = np.array(df.iloc[:,taudR])
 
     hdf5_file["all_jet"][start_index:end_index, :, :, :] = im
-    hdf5_file["am"][start_index:end_index, :]   = am.reshape(df.shape[0],1).tolist()
+    # hdf5_file["am"][start_index:end_index, :]   = am.reshape(df.shape[0],1).tolist()
+    hdf5_file["y"][start_index:end_index, :]   = y.reshape(df.shape[0],1).tolist()
     hdf5_file["ieta"][start_index:end_index, :] = ieta.reshape(df.shape[0],1).tolist()
     hdf5_file["iphi"][start_index:end_index, :] = iphi.reshape(df.shape[0],1).tolist()
-    hdf5_file["m0"][start_index:end_index, :]   = m0.reshape(df.shape[0],1).tolist()
-    hdf5_file["apt"][start_index:end_index, :]   = apt.reshape(df.shape[0],1).tolist()
-    hdf5_file["jetpt"][start_index:end_index, :]   = jetpt.reshape(df.shape[0],1).tolist()
-    hdf5_file["taudR"][start_index:end_index, :]   = taudR.reshape(df.shape[0],1).tolist()
+    # hdf5_file["m0"][start_index:end_index, :]   = m0.reshape(df.shape[0],1).tolist()
+    # hdf5_file["apt"][start_index:end_index, :]   = apt.reshape(df.shape[0],1).tolist()
+    # hdf5_file["jetpt"][start_index:end_index, :]   = jetpt.reshape(df.shape[0],1).tolist()
+    # hdf5_file["taudR"][start_index:end_index, :]   = taudR.reshape(df.shape[0],1).tolist()
 
     return hdf5_file
 
 
 def process_files(args):
-    batch_size = 4096
+    batch_size = 256
     file_path = args[0]
     h5py_file = args[1]
     parquet = pq.ParquetFile(file_path)
@@ -100,7 +104,7 @@ h5_dir = out_dir
 if not os.path.exists(h5_dir):
     os.makedirs(h5_dir)
 
-batch_size = 4096
+batch_size = 256
 inputfile_list = []
 outputfile_list = []
 

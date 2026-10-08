@@ -16,7 +16,8 @@ def combine_h5_files(master_folder, out_dir, dest_file, batch_size):
     files_data = []
 
     # dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'm0', 'apt', 'jetpt', 'taudR']
-    dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'apt']
+    # dataset_names = ['all_jet', 'am', 'ieta', 'iphi', 'apt']
+    dataset_names = ['all_jet', 'y', 'ieta', 'iphi']
 
     total_length = 0
 

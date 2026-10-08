@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--input_file', default='/global/cfs/cdirs/m4392/bbbam/IMG_aToTauTau_Hadronic_m3p6To18_pt30T0300_unbiased_combined_h5/IMG_aToTauTau_Hadronic_m3p6To18_pt30T0300_unbiased_combined_valid.h5',
                     help='input data path')
-parser.add_argument('--output_data_path', default='/global/cfs/cdirs/m4392/bbbam/IMG_aToTauTau_Hadronic_m3p6To14_pt30T0300_unbiased_combined_h5',
+parser.add_argument('--output_data_path', default='/global/cfs/cdirs/m4392/bbbam/IMG_aToTauTau_Hadronic_m3p6To18_pt30T0300_original_unbiased_combined_v2_h5',
                     help='output data path')
 parser.add_argument('--prefix', type=str, default='valid',
                     help='select train or valid')
@@ -21,7 +21,7 @@ parser.add_argument('--in_size', type=int, default=-1,
                     help='number of input to process')
 parser.add_argument('--lower_mass', type=float, default=3.6,
                     help='lower mass point')
-parser.add_argument('--upper_mass', type=float, default=14,
+parser.add_argument('--upper_mass', type=float, default=18,
                     help='upper mass point')
 args = parser.parse_args()
 
